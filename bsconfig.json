@@ -15,5 +15,5 @@
     "reason-react"
   ],
   "refmt": 3,
-  "reason": {"react-jsx": 2}
+  "reason": {"react-jsx": 3}
 }

@@ -1,5 +1,5 @@
 [@bs.val] [@bs.module "react-dom"]
-external hydrate : (ReasonReact.reactElement, Dom.element) => unit = "hydrate";
+external hydrate : (React.element, Dom.element) => unit = "hydrate";
 
 [@bs.val] [@bs.return nullable]
 external _getElementById : string => option(Dom.element) = "document.getElementById";
