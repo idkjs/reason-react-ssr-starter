@@ -1,0 +1,48 @@
+/* https://github.com/jaredpalmer/reason-react-native-web-example/blob/master/src/Routes.re */
+open ReasonReactRouter;
+
+type t =
+  | Home
+  | About
+  | NotFound;
+
+exception RouteToNotFound;
+
+let match = (url: url) =>
+  switch (url.path) {
+  | [] => Home
+  | ["about"] => About
+  | _ => NotFound
+  };
+
+let toHref =
+  fun
+  | Home => "/"
+  | About => "/about"
+  | NotFound => raise(RouteToNotFound);
+
+/* This lets us push a Routes.t instead of a string to transition to a new  screen */
+let push = route => route |> toHref |> push;
+
+/* On the server, we need a way to parse the path in req, but ReasonReactRouter doesn't
+   expose this logic publicly. So we just copy it here - note that it won't work for search or hash, though
+   that'd be fairly trivial to add */
+let serverMatch = (path: string): ReasonReactRouter.url => {
+  let urlPath: list(string) =
+    switch (path) {
+    | ""
+    | "/" => []
+    | raw =>
+      /* remove the preceeding /, which every pathname seems to have */
+      let raw = Js.String.sliceToEnd(~from=1, raw);
+      /* remove the trailing /, which some pathnames might have. Ugh */
+      let raw =
+        switch (Js.String.get(raw, Js.String.length(raw) - 1)) {
+        | "/" => Js.String.slice(~from=0, ~to_=-1, raw)
+        | _ => raw
+        };
+      raw |> Js.String.split("/") |> Array.to_list;
+    };
+  Js.log(urlPath);
+  {path: urlPath, hash: "", search: ""};
+};

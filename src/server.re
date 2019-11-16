@@ -1,7 +1,32 @@
 let app = Express.App.make();
-
+let getUrl = (path, query) => {
+  let url: ReasonReactRouter.url = {
+    path:
+      List.filter(s => s != "", Array.to_list(Js.String.split("/", path))),
+    hash: "",
+    search:
+      switch (Js.Dict.get(query, "success")) {
+      | Some(v) =>
+        switch (Js.Json.decodeString(v)) {
+        | Some(s) =>
+          switch (s) {
+          | "true" => "success=true"
+          | "false" => "success=false"
+          | _ => ""
+          }
+        | _ => ""
+        }
+      | _ => ""
+      },
+  };
+  url;
+};
 let renderHTML = (_next, _req, res) => {
-  let content = ReactDOMServerRe.renderToString(<App />);
+  // let url = getUrl(Express.Request.path(_req), Express.Request.query(_req));
+  // let content = ReactDOMServerRe.renderToString(<Router serverUrl=(Some(url)) />);
+  let serverUrl = Routes.serverMatch(Express.Request.path(_req));
+  let content = ReactDOMServerRe.renderToString(<Router serverUrl=(Some(serverUrl)) />);
+  // let content = ReactDOMServerRe.renderToString(<App />);
   Express.Response.sendString(Template.make(~content, ~title="ReasonReact SSR Starter", ()), res);
 };
 
